@@ -8,14 +8,24 @@
 import SwiftUI
 
 struct ContentView: View {
+    @StateObject var locationManager = LocationHandler()
+    @StateObject var api = APIHAndler()
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundColor(.accentColor)
-            Text("Hello, world!")
+        NavigationStack {
+            VStack(content: {
+                if api.forecasts.count > 0 {
+                    CurrentForecastView(forecast: api.forecasts[0])
+                        .background(.mint.opacity(0.2))
+                        .cornerRadius(25)
+                        .padding()
+                }
+                ForecastListView(forecasts: api.forecasts)
+            })
+                .navigationTitle(locationManager.cityName ?? "Ma météo")
+                .onChange(of: locationManager.cityName) { newValue in
+                    api.callApi(lat: locationManager.latitude, lon: locationManager.longitude)
+                }
         }
-        .padding()
     }
 }
 
